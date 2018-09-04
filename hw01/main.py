@@ -69,9 +69,9 @@ def makeMenu():
 
 def createGameWindow(height, width, stdscr):
     begin_x = 0; begin_y = 0;
-    max_x = height+1; max_y = 2*(width+2);
+    max_x = height+1; max_y = 2*(width+3);
 
-    cursorPosX = 2; cursorPosY = 2;
+    cursorPosX = 3; cursorPosY = 1;
     # create the menu window
     game = curses.newwin(max_x, max_y, begin_y, begin_x)
 
@@ -84,25 +84,40 @@ def createGameWindow(height, width, stdscr):
     #stdscr.keypad(True)
     button = game.getch()
 
-    while button != ord('e'):
-        if cursorPosY == max_y or cursorPosX == max_x or cursorPosY != 2 or cursorPosX != 2:
+    while True:
+        game.addstr(cursorPosY, cursorPosX, "X")
+        
+        # Bounds Check
+        if cursorPosY == max_y or cursorPosX == max_x or cursorPosY < 1 or cursorPosX < 3:
             # do nothing
             continue
-        elif button == ord('s'):
-            game.addstr(cursorPosY, cursorPosX, "X")
-            game.move(cursorPosY, cursorPosX)
-            cursorPosY += cursorPosY
+        # Down
+        if button == ord('s'):
+            cursorPosY += 1
 
+        # Up
+        elif button == ord('w'):
+            cursorPosY -= 1
+       
+       # Left
+        elif button == ord('a'):
+            cursorPosX -= 2
+        
+        # Right
+        elif button == ord('d'):
+            cursorPosX += 2
+        
+        game.move(cursorPosY, cursorPosX)
         game.refresh()
         button = game.getch()
 
 def createBoarder(win, height, width):
     win.clear()
     for i in range(0, width):
-        win.addstr(0, 2*(i+2), str(i))
+        win.addstr(0, (2*(i+2)) - 1, str(i))
 
     for i in range(0, height):
-        win.addstr(i+2, 0, str(i) + ":")
+        win.addstr(i+1, 0, str(i) + ":")
 
     win.refresh()
 

@@ -51,9 +51,12 @@ def makeMenu():
     menu.addstr(0, 0, "How wide of a board do you want?")
     menu.refresh()
     
+    # Get the input from user for the width
     while True:
+         # using try catch to catch non integer inputs
         try:
             width = menu.getstr()
+            # check the bounds aren't too small or too big
             if int(width) >= 2 and int(width) <= int((curses.COLS / 2) - 3):
                 break
         except:
@@ -67,9 +70,12 @@ def makeMenu():
     menu.addstr(0, 0, "How long of a board do you want?")
     menu.refresh()
     
+    # Get the input from the user for the length
     while True:
+        # using try catch to catch non integer inputs
         try:
             length = menu.getstr()
+            # check the bounds aren't too small or too big
             if int(length) > 2 and int(length) <= (curses.LINES - 2):
                 break
         except:
@@ -77,11 +83,16 @@ def makeMenu():
             menu.refresh()
             menu.addstr(0, 0, "Invalid number... values 2 - " + str(curses.LINES - 2) + ". please enter another number")
     
+    # Delete the menu window
     menu.erase()
     menu.refresh()
     del menu
     return int(length), int(width) 
 
+# Make the game window and run the game code
+# height - the # of rows
+# width - the # of columns
+# stdscr - the terminal window
 def createGameWindow(height, width, stdscr):
     begin_x = 0; begin_y = 0;
     

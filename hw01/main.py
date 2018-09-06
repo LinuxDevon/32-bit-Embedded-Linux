@@ -2,6 +2,8 @@
 import curses
 from curses import wrapper
 
+# Starts the default settings for ncurses
+# stdscr - the terminal window
 def initCurses(stdscr):
     # Allow keystroke reading
     curses.noecho()
@@ -12,12 +14,15 @@ def initCurses(stdscr):
     # Enable arrow keys
     stdscr.keypad(True)
 
+# Exits ncurses and does clean up
+# stdscr - the terminal window
 def exitCurses(stdscr):
     curses.nocbreak()
     stdscr.keypad(False)
     curses.echo()
     curses.endwin()
 
+# Create the start menu to guide the user. Also picks the window size
 def makeMenu():
     begin_x = 0; begin_y = 0;
     height = curses.LINES; width = curses.COLS;
@@ -27,8 +32,10 @@ def makeMenu():
     
     # add the letters to the window
     menu.addstr(0, int(width / 2), "Etch A Sketch",curses.A_BLINK)
-    menu.addstr(1, int(width / 4), "Use the arrow keys to navigate the on the screen. Where you go leaves an X in its place. Hit 'Backspace' to erase the screen. Hit 'shift' or 'e' to exit.")
-    menu.addstr(5, int(width / 4), "press any key to continue...");
+    menu.addstr(2, 0, "INSTRUCTIONS:")
+    menu.addstr(3, 0, "Use the 'w' to move up, 's' to move down, 'a' to move left, and 'd' to move right.")
+    menu.addstr(5, 0, "'e' is exit the game and 'c' clears the board.")
+    menu.addstr(7, int(width / 4), "press any key to continue...");
     
     # update the window
     menu.refresh()
@@ -43,24 +50,32 @@ def makeMenu():
     # ask user how big of a board
     menu.addstr(0, 0, "How wide of a board do you want?")
     menu.refresh()
-    width = menu.getstr()
-    while int(width) < 2 or int(width) >= (curses.COLS - 1):
-        menu.clear()
-        menu.addstr(0, 0, "Invalid number... values 2 - " + str(curses.COLS) + ". please enter another number.")
-        menu.refresh()
-        width = menu.getstr()
+    
+    while True:
+        try:
+            width = menu.getstr()
+            if int(width) >= 2 and int(width) <= int((curses.COLS / 2) - 3):
+                break
+        except:
+            menu.clear()
+            menu.addstr(0, 0, "Invalid number... values 2 - " + str(int((curses.COLS / 2) - 3)) + ". please enter another number.")
+            menu.refresh()
 
     #clear old text
     menu.clear()
 
     menu.addstr(0, 0, "How long of a board do you want?")
     menu.refresh()
-    length = menu.getstr()
-    while int(length) < 2 or int(length) >= (curses.LINES - 1):
-        menu.clear()
-        menu.refresh()
-        menu.addstr(0, 0, "Invalid number... values 2 - " + str(curses.LINES) + ". please enter another number")
-        length = menu.getstr()
+    
+    while True:
+        try:
+            length = menu.getstr()
+            if int(length) > 2 and int(length) <= (curses.LINES - 2):
+                break
+        except:
+            menu.clear()
+            menu.refresh()
+            menu.addstr(0, 0, "Invalid number... values 2 - " + str(curses.LINES - 2) + ". please enter another number")
     
     menu.erase()
     menu.refresh()
@@ -69,58 +84,91 @@ def makeMenu():
 
 def createGameWindow(height, width, stdscr):
     begin_x = 0; begin_y = 0;
-    max_x = height+1; max_y = 2*(width+3);
+    
+    # bounds of the game board
+    max_y = height+2; max_x = (2*width)+3;
+    min_x = 3; min_y = 1;
 
-    cursorPosX = 3; cursorPosY = 1;
-    # create the menu window
-    game = curses.newwin(max_x, max_y, begin_y, begin_x)
+    # start cursor at top right corner
+    cursorPosX = min_x; cursorPosY = min_y;
+    
+    # create the gamec window
+    game = curses.newwin(max_y, max_x, begin_y, begin_x)
 
     createBoarder(game, height, width)
 
     # move default cursor position
     game.move(cursorPosY, cursorPosX)
 
+    # verify that keys don't get echoed
     curses.noecho()
-    #stdscr.keypad(True)
+    
+    # get button presses
     button = game.getch()
 
+    # -- GAME LOOP -- #
     while True:
         game.addstr(cursorPosY, cursorPosX, "X")
         
-        # Bounds Check
-        if cursorPosY == max_y or cursorPosX == max_x or cursorPosY < 1 or cursorPosX < 3:
-            # do nothing
-            continue
         # Down
         if button == ord('s'):
-            cursorPosY += 1
+            if cursorPosY != (max_y - 2):
+                cursorPosY += 1
 
         # Up
         elif button == ord('w'):
-            cursorPosY -= 1
+            if cursorPosY != min_y:
+                cursorPosY -= 1
        
        # Left
         elif button == ord('a'):
-            cursorPosX -= 2
+            if cursorPosX != min_x:
+                cursorPosX -= 2
         
         # Right
         elif button == ord('d'):
-            cursorPosX += 2
+            if cursorPosX != max_x - 2:
+                cursorPosX += 2
+        
+        # clear
+        elif button == ord('c'):
+            createBoarder(game, height, width)
+            
+        # close
+        elif button == ord('e'):
+            break
         
         game.move(cursorPosY, cursorPosX)
         game.refresh()
         button = game.getch()
+        
+    # game complete
+    game.erase()
+    game.refresh()
+    del game
 
+# This function clears the window and makes the boarder
+# win - the game window
+# height - # of rows
+# width - # of columns
 def createBoarder(win, height, width):
     win.clear()
+    
+    # put a board around the edge to know the boundaries
+    win.border(1, '|', 1, '-', 1, '+', '+', '+')
+    
+    # print top 
     for i in range(0, width):
         win.addstr(0, (2*(i+2)) - 1, str(i))
 
+    # print left
     for i in range(0, height):
         win.addstr(i+1, 0, str(i) + ":")
 
     win.refresh()
 
+# the main function that starts the initialization and clean up
+# stdscr - the standard window
 def main(stdscr):
     # -- INIT -- #
     initCurses(stdscr)
@@ -129,10 +177,9 @@ def main(stdscr):
 
     createGameWindow(length, width, stdscr)
 
-    
-    stdscr.getch()
     # -- EXIT -- #
     exitCurses(stdscr)
 
 if __name__ == "__main__":
+    # this is for debugging with ncurses
     wrapper(main)

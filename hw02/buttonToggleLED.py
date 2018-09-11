@@ -2,15 +2,15 @@
 import Adafruit_BBIO.GPIO as GPIO
 import time
 
-LED1 = "P9_12"
-LED2 = ""
-LED3 = ""
-LED4 = ""
+LED1 = "P8_45"
+LED2 = "P8_46"
+LED3 = "P8_44"
+LED4 = "P8_43"
 
-BUTTON1 = ""
-BUTTON2 = ""
-BUTTON3 = ""
-BUTTON4 = ""
+BUTTON1 = "P9_42"
+BUTTON2 = "P9_27"
+BUTTON3 = "P9_25"
+BUTTON4 = "P9_23"
 
 # Set the GPIO pins:
 GPIO.setup(LED1, GPIO.OUT)
@@ -27,14 +27,15 @@ GPIO.setup(BUTTON4, GPIO.IN)
 map = {BUTTON1 : LED1, BUTTON2 : LED2, BUTTON3 : LED3, BUTTON4 : LED4}
 
 def updateLED(channel):
+    print("Button pressed")
     state = GPIO.input(channel)
     GPIO.output(map[channel], state)
     
 # attach events to listen to buttons
-GPIO.add_event_detect(BUTTON1, GPIO.BOTH, callback=updateLED, bouncetime=50)
-GPIO.add_event_detect(BUTTON2, GPIO.BOTH, callback=updateLED, bouncetime=50)
-GPIO.add_event_detect(BUTTON3, GPIO.BOTH, callback=updateLED, bouncetime=50)
-GPIO.add_event_detect(BUTTON4, GPIO.BOTH, callback=updateLED, bouncetime=50)
+GPIO.add_event_detect(BUTTON1, GPIO.BOTH, callback=updateLED, bouncetime=100)
+GPIO.add_event_detect(BUTTON2, GPIO.BOTH, callback=updateLED, bouncetime=100)
+GPIO.add_event_detect(BUTTON3, GPIO.BOTH, callback=updateLED, bouncetime=100)
+GPIO.add_event_detect(BUTTON4, GPIO.BOTH, callback=updateLED, bouncetime=100)
 
 try:
     while True:

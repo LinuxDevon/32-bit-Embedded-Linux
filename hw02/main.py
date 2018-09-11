@@ -1,6 +1,24 @@
 #!/usr/bin/env python3
 import curses
+import time
 from curses import wrapper
+import Adafruit_BBIO.GPIO as GPIO
+
+# -- GLOBALS -- #
+LEFT_BUTTON =  "P9_42"
+RIGHT_BUTTON = "P9_27"
+UP_BUTTON = "P9_25"
+DOWN_BUTTON = "P9_23"
+
+min_x = 3; min_y = 1;
+max_x = 50; max_y = 50; # these are arbitrary for now incase of button clicks
+
+# start cursor at top right corner
+cursorPosX = min_x; cursorPosY = min_y;
+game = None
+
+# keep track of last time a button was pressed
+lastButtonTime = None
 
 # Starts the default settings for ncurses
 # stdscr - the terminal window
@@ -88,21 +106,49 @@ def makeMenu():
     menu.refresh()
     del menu
     return int(length), int(width) 
-
+    
+# This is the function callback for button presses.
+# channel - the button pressed
+def readButton(channel):
+    global  cursorPosX, cursorPosY, game
+    
+    game.addstr(cursorPosY, cursorPosX, "X")
+    # Down
+    if channel == DOWN_BUTTON:
+        if cursorPosY != (max_y - 2):
+            cursorPosY += 1
+    
+    # Up
+    elif channel == UP_BUTTON:
+        if cursorPosY != min_y:
+            cursorPosY -= 1
+    
+    # Left
+    elif channel == LEFT_BUTTON:
+        if cursorPosX != min_x:
+            cursorPosX -= 2
+    
+    # Right
+    elif channel == RIGHT_BUTTON:
+        if cursorPosX != max_x - 2:
+            cursorPosX += 2
+    
+    game.move(cursorPosY, cursorPosX)
+    game.refresh()
+    #time.sleep(.5) # put this in to prevent double clicks from bad clicks
+    
 # Make the game window and run the game code
 # height - the # of rows
 # width - the # of columns
 # stdscr - the terminal window
 def createGameWindow(height, width, stdscr):
+    global min_y, min_x, cursorPosX, cursorPosY, game, max_y, max_x
+    
     begin_x = 0; begin_y = 0;
     
     # bounds of the game board
     max_y = height+2; max_x = (2*width)+3;
-    min_x = 3; min_y = 1;
 
-    # start cursor at top right corner
-    cursorPosX = min_x; cursorPosY = min_y;
-    
     # create the gamec window
     game = curses.newwin(max_y, max_x, begin_y, begin_x)
 
@@ -114,11 +160,14 @@ def createGameWindow(height, width, stdscr):
     # verify that keys don't get echoed
     curses.noecho()
     
-    # get button presses
-    button = game.getch()
-
+    GPIO.add_event_detect(LEFT_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
+    GPIO.add_event_detect(RIGHT_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
+    GPIO.add_event_detect(UP_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
+    GPIO.add_event_detect(DOWN_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
+    
     # -- GAME LOOP -- #
     while True:
+        button = game.getch()
         game.addstr(cursorPosY, cursorPosX, "X")
         
         # Down
@@ -151,7 +200,6 @@ def createGameWindow(height, width, stdscr):
         
         game.move(cursorPosY, cursorPosX)
         game.refresh()
-        button = game.getch()
         
     # game complete
     game.erase()
@@ -183,6 +231,12 @@ def createBoarder(win, height, width):
 def main(stdscr):
     # -- INIT -- #
     initCurses(stdscr)
+    
+    # -- LED/GPIO -- #
+    GPIO.setup(LEFT_BUTTON, GPIO.IN)
+    GPIO.setup(RIGHT_BUTTON, GPIO.IN)
+    GPIO.setup(UP_BUTTON, GPIO.IN)
+    GPIO.setup(DOWN_BUTTON, GPIO.IN)
 
     length, width = makeMenu()
 

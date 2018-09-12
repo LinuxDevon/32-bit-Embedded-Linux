@@ -21,7 +21,17 @@ To use this hook up an led to GPIO 60. Run `./ledToggle.py`. To change the delay
 fix the delay variable in the file.
 
 ## main.py
-This is the overall Etch-e-sketch program. This is setup to run on off of buttons.
+This is the overall Etch-e-sketch program. This is setup to run on off of buttons. 
+
+It will also work with the default keyboard buttons:
+```
+'w' - up
+'s' - down
+'a' - left
+'d' - right
+'e' - exit
+'c' - clear
+```
 
 The defualt buttons are wired like this:
 ```

@@ -17,12 +17,17 @@ Just do `./main.py`
 
 # INSTRUCTIONS
 * w - up
-* d - down
+* s - down
 * a - left
-* b - right
+* d - right
 * e - exit
 * c - clear
 
 # BUGS:
 * If you resize the window smaller than what originally created the windows gets
 screwed up. You just have to exit and restart the game.
+
+
+Looks good, though you had two errors in your instructions.
+
+Score:  9/10

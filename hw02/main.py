@@ -9,6 +9,7 @@ LEFT_BUTTON =  "P9_42"
 RIGHT_BUTTON = "P9_27"
 UP_BUTTON = "P9_25"
 DOWN_BUTTON = "P9_23"
+#CLEAR_BUTTON = "P9_15"
 
 min_x = 3; min_y = 1;
 max_x = 50; max_y = 50; # these are arbitrary for now incase of button clicks
@@ -133,6 +134,10 @@ def readButton(channel):
         if cursorPosX != max_x - 2:
             cursorPosX += 2
     
+    # clear
+    elif channel == CLEAR_BUTTON:
+        createBoarder(game, height, width)
+            
     game.move(cursorPosY, cursorPosX)
     game.refresh()
     #time.sleep(.5) # put this in to prevent double clicks from bad clicks
@@ -160,10 +165,12 @@ def createGameWindow(height, width, stdscr):
     # verify that keys don't get echoed
     curses.noecho()
     
+    # add the event to detect which button is pressed. Also have it have bouncetime to prevent multiple clicks by accident.
     GPIO.add_event_detect(LEFT_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
     GPIO.add_event_detect(RIGHT_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
     GPIO.add_event_detect(UP_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
     GPIO.add_event_detect(DOWN_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
+    #GPIO.add_event_detect(CLEAR_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
     
     # -- GAME LOOP -- #
     while True:
@@ -237,6 +244,7 @@ def main(stdscr):
     GPIO.setup(RIGHT_BUTTON, GPIO.IN)
     GPIO.setup(UP_BUTTON, GPIO.IN)
     GPIO.setup(DOWN_BUTTON, GPIO.IN)
+    #GPIO.setup(CLEAR_BUTTON, GPIO.IN)
 
     length, width = makeMenu()
 

@@ -131,24 +131,28 @@ def readButton(channel):
     if channel == DOWN_BUTTON:
         if cursorPosY != (max_y - 2):
             cursorPosY += 1
+        if gameArrayPosY < 7:
             gameArrayPosY += 1
     
     # Up
     elif channel == UP_BUTTON:
         if cursorPosY != min_y:
             cursorPosY -= 1
+        if gameArrayPosY > 0:
             gameArrayPosY -= 1
     
     # Left
     elif channel == LEFT_BUTTON:
         if cursorPosX != min_x:
             cursorPosX -= 2
+        if gameArrayPosX < 14:
             gameArrayPosX += 2
     
     # Right
     elif channel == RIGHT_BUTTON:
         if cursorPosX != max_x - 2:
             cursorPosX += 2
+        if gameArrayPosX > 0:
             gameArrayPosX -= 2
             
     # clear
@@ -203,24 +207,28 @@ def createGameWindow(height, width, stdscr):
         if button == ord('s'):
             if cursorPosY != (max_y - 2):
                 cursorPosY += 1
+            if gameArrayPosY < 7:
                 gameArrayPosY += 1
 
         # Up
         elif button == ord('w'):
             if cursorPosY != min_y:
                 cursorPosY -= 1
+            if gameArrayPosY > 0:
                 gameArrayPosY -= 1
        
        # Left
         elif button == ord('a'):
             if cursorPosX != min_x:
                 cursorPosX -= 2
+            if gameArrayPosX < 14:
                 gameArrayPosX += 2
         
         # Right
         elif button == ord('d'):
             if cursorPosX != max_x - 2:
                 cursorPosX += 2
+            if gameArrayPosX > 0:
                 gameArrayPosX -= 2
         
         # clear
@@ -266,6 +274,8 @@ def createBoarder(win, height, width):
 # the main function that starts the initialization and clean up
 # stdscr - the standard window
 def main(stdscr):
+    global game_array
+    
     # -- INIT -- #
     initCurses(stdscr)
     
@@ -287,6 +297,10 @@ def main(stdscr):
     createGameWindow(length, width, stdscr)
 
     # -- EXIT -- #
+    game_array = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]
+    bus.write_i2c_block_data(matrix, 0, game_array)
+    
     exitCurses(stdscr)
 
 if __name__ == "__main__":

@@ -7,11 +7,10 @@ import Adafruit_BBIO.GPIO as GPIO
 from Adafruit_BBIO.Encoder import RotaryEncoder, eQEP2, eQEP1
 
 # -- GLOBALS -- #
-LEFT_BUTTON =  "P9_42"
-RIGHT_BUTTON = "P9_27"
-UP_BUTTON = "P9_25"
-DOWN_BUTTON = "P9_23"
-#CLEAR_BUTTON = "P9_15"
+CLEAR_BUTTON =  "P9_42"
+EXIT_BUTTON = "P9_27"
+# UP_BUTTON = "P9_25"
+# DOWN_BUTTON = "P9_23"
 
 min_x = 3; min_y = 1;
 max_x = 50; max_y = 50; # these are arbitrary for now incase of button clicks
@@ -22,13 +21,17 @@ gameArrayPosX = 14; gameArrayPosY = 0;
 game_array = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 ]
 game = None
+HEIGHT = 0; WIDTH = 0;
 
 # -- MATRIX -- #
 bus = smbus.SMBus(2)  # Use i2c bus 1
 matrix = 0x70         # Use address 0x70
 
-# keep track of last time a button was pressed
-lastButtonTime = None
+# -- ENCODERS -- #
+Encoder1 = RotaryEncoder(eQEP1)
+Encoder2 = RotaryEncoder(eQEP2)
+
+running = True
 
 # Starts the default settings for ncurses
 # stdscr - the terminal window
@@ -71,45 +74,8 @@ def makeMenu():
     # wait for user input
     menu.getch()
 
-    # clear the screen to get how big of a board
-    menu.clear()
-    curses.echo() # show the input
-
-    # ask user how big of a board
-    menu.addstr(0, 0, "How wide of a board do you want?")
-    menu.refresh()
-    
-    # Get the input from user for the width
-    while True:
-         # using try catch to catch non integer inputs
-        try:
-            width = menu.getstr()
-            # check the bounds aren't too small or too big
-            if int(width) >= 2 and int(width) <= int((curses.COLS / 2) - 3):
-                break
-        except:
-            menu.clear()
-            menu.addstr(0, 0, "Invalid number... values 2 - " + str(int((curses.COLS / 2) - 3)) + ". please enter another number.")
-            menu.refresh()
-
-    #clear old text
-    menu.clear()
-
-    menu.addstr(0, 0, "How long of a board do you want?")
-    menu.refresh()
-    
-    # Get the input from the user for the length
-    while True:
-        # using try catch to catch non integer inputs
-        try:
-            length = menu.getstr()
-            # check the bounds aren't too small or too big
-            if int(length) > 2 and int(length) <= (curses.LINES - 2):
-                break
-        except:
-            menu.clear()
-            menu.refresh()
-            menu.addstr(0, 0, "Invalid number... values 2 - " + str(curses.LINES - 2) + ". please enter another number")
+    width = 8
+    length = 8
     
     # Delete the menu window
     menu.erase()
@@ -117,12 +83,33 @@ def makeMenu():
     del menu
     return int(length), int(width) 
 
+# Reads the input of the buttons and either exits or clears
+# channel - the button pressed
+def readButton(channel):
+    global running, HEIGHT, WIDTH, game, game_array, gameArrayPosX, gameArrayPosY
+    # clear
+    if channel == CLEAR_BUTTON:
+        createBoarder(game, HEIGHT, WIDTH)
+        game_array = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]
+        game_array[gameArrayPosX+1] = game_array[gameArrayPosX+1] | (1 << gameArrayPosY) # add in the cursor
+        bus.write_i2c_block_data(matrix, 0, game_array)
+        
+    # close
+    if channel == EXIT_BUTTON:
+        running = False
+
 # Make the game window and run the game code
 # height - the # of rows
 # width - the # of columns
 # stdscr - the terminal window
 def createGameWindow(height, width, stdscr):
-    global min_y, min_x, cursorPosX, cursorPosY, game, max_y, max_x, gameArrayPosX, gameArrayPosY, game_array
+    global min_y, min_x, cursorPosX, cursorPosY, game, max_y, max_x
+    global gameArrayPosX, gameArrayPosY, game_array, Encoder1, Encoder2, running
+    global HEIGHT, WIDTH
+    
+    HEIGHT = height
+    WIDTH  = width
     
     begin_x = 0; begin_y = 0;
     
@@ -136,55 +123,55 @@ def createGameWindow(height, width, stdscr):
 
     # move default cursor position
     game.move(cursorPosY, cursorPosX)
+    
+    GPIO.add_event_detect(CLEAR_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
+    GPIO.add_event_detect(EXIT_BUTTON, GPIO.RISING, callback=readButton, bouncetime = 250)
 
     # verify that keys don't get echoed
     curses.noecho()
     
     # -- GAME LOOP -- #
-    while True:
-        button = game.getch()
+    while running:
         game.addstr(cursorPosY, cursorPosX, "X")
-            
+        
+
         game_array[gameArrayPosX] = game_array[gameArrayPosX] | (1 << gameArrayPosY) # put x
-        game_array[gameArrayPosX+1] = 0x00 # remove cursor
         bus.write_i2c_block_data(matrix, 0, game_array)
+
+            
         # Down
-        if button == ord('s'):
+        if Encoder2.position < 0:
+            Encoder2.position = 0
             if cursorPosY != (max_y - 2):
+                game_array[gameArrayPosX+1] = 0x00 # remove cursor
                 cursorPosY += 1
-            if gameArrayPosY < 7:
                 gameArrayPosY += 1
 
         # Up
-        elif button == ord('w'):
+        elif Encoder2.position > 0:
+            Encoder2.position = 0
             if cursorPosY != min_y:
+                game_array[gameArrayPosX+1] = 0x00 # remove cursor
                 cursorPosY -= 1
-            if gameArrayPosY > 0:
                 gameArrayPosY -= 1
        
-       # Left
-        elif button == ord('a'):
+        # Left
+        if Encoder1.position > 0:
+            Encoder1.position = 0
             if cursorPosX != min_x:
+                game_array[gameArrayPosX+1] = 0x00 # remove cursor
                 cursorPosX -= 2
-            if gameArrayPosX < 14:
                 gameArrayPosX += 2
         
         # Right
-        elif button == ord('d'):
+        elif Encoder1.position < 0:
+            Encoder1.position = 0
             if cursorPosX != max_x - 2:
+                game_array[gameArrayPosX+1] = 0x00 # remove cursor
                 cursorPosX += 2
-            if gameArrayPosX > 0:
                 gameArrayPosX -= 2
         
-        # clear
-        elif button == ord('c'):
-            createBoarder(game, height, width)
-            game_array = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]
-            
-        # close
-        elif button == ord('e'):
-            break
+        time.sleep(.25) # used for debouncing
         
         game_array[gameArrayPosX+1] = game_array[gameArrayPosX+1] | (1 << gameArrayPosY) # add in the cursor
         bus.write_i2c_block_data(matrix, 0, game_array)
@@ -224,12 +211,15 @@ def main(stdscr):
     # -- INIT -- #
     initCurses(stdscr)
     
-    # -- LED/GPIO -- #
-    GPIO.setup(LEFT_BUTTON, GPIO.IN)
-    GPIO.setup(RIGHT_BUTTON, GPIO.IN)
-    GPIO.setup(UP_BUTTON, GPIO.IN)
-    GPIO.setup(DOWN_BUTTON, GPIO.IN)
-    #GPIO.setup(CLEAR_BUTTON, GPIO.IN)
+    # -- BUTTONS -- #
+    GPIO.setup(CLEAR_BUTTON, GPIO.IN)
+    GPIO.setup(EXIT_BUTTON, GPIO.IN)
+    
+    # -- ENCODER -- #
+    Encoder1.setAbsolute()
+    Encoder1.enable()
+    Encoder2.setAbsolute()
+    Encoder2.enable()
     
     # -- I2C -- #
     bus.write_byte_data(matrix, 0x21, 0)   # Start oscillator (p10)

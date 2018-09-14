@@ -4,6 +4,7 @@ import smbus
 import time
 from curses import wrapper
 import Adafruit_BBIO.GPIO as GPIO
+from Adafruit_BBIO.Encoder import RotaryEncoder, eQEP2, eQEP1
 
 # -- GLOBALS -- #
 LEFT_BUTTON =  "P9_42"
@@ -69,8 +70,8 @@ def makeMenu():
 
     # wait for user input
     menu.getch()
-
-    # clear the screen to get how big of a board
+    
+        # clear the screen to get how big of a board
     menu.clear()
     curses.echo() # show the input
 
@@ -300,6 +301,8 @@ def main(stdscr):
     game_array = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]
     bus.write_i2c_block_data(matrix, 0, game_array)
+    
+    GPIO.cleanup()
     
     exitCurses(stdscr)
 

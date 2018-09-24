@@ -72,3 +72,10 @@ and the other is tied to ground.
 run by typing `$bone ./tmp101reading.sh`
 
 All of this has been tested and verified. 
+
+========================
+Professor Yoder's Comments
+
+Looks very good again.  Nice and complete.
+
+Score:10/10

@@ -20,7 +20,7 @@ P9_41
 ```
 
 Run `sudo ./memoryMap` to start the program and push the buttons to see USR2 and USR3
-leds toggle based on the buttons.
+leds toggle based on the buttons. Press ctrl-c to quit.
 
 This part has been tested and verified by me.
 

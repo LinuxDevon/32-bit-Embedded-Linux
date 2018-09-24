@@ -19,4 +19,4 @@ toggleLED: toggleLED.c beaglebone_gpio.h
 	$(CC) $(CFLAGS) $(TOOLS_CFLAGS) -c $< -o $@
 
 clean:
-	rm memoryMap
+	rm memoryMap toggleLED

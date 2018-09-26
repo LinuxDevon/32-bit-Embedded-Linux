@@ -36,3 +36,10 @@ of noise and misses though when viewed on the scope.
 ## LCD
 I ran the video, picture, and text on the LCD and it was verified by Dr. Yoder.
 You can see the homework4.docx file for pictures of it functioning.
+
+========================
+Professor Yoder's Comments
+
+Looks very good.  Nice and complete.
+
+Score:  10/10

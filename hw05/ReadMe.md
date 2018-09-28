@@ -24,10 +24,10 @@ You can remove the old files by typing `make clean`. `app.o` and `app.arm` will 
 To see the variables of the make file type `make test`.
 
 # KERNEL SOURCE
-I have completed the install and compile of the kernel and am now on 4.19.
+I have successfully compiled and installed the kernel and I am now on 4.19.
 
 # CROSS-COMPILING
-I have completed this and successfully ran on host and bone. See the pictures below:
+I have completed this and successfully ran on the program on the host and the bone. See the pictures below:
 ```
 Beagle_Execution.png
 compile_native.png

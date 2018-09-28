@@ -2,9 +2,9 @@ The overall objective was to understand the kernel more.
 
 # FILES
 * make
-** Makefile - The make file that i created to learn make and compile the helloworld program.
-** app.c - This is the test helloworld program.
-** path.mak - This is the include that has compiler information and to demo include in make.
+  * Makefile - The make file that i created to learn make and compile the helloworld program.
+  * app.c - This is the test helloworld program.
+  * path.mak - This is the include that has compiler information and to demo include in make.
 * Beagle_Execution.png - Output from compiling on host and running on host.
 * compile_native.png - Output from compiling on host and running on bone.
 * part1_kernel_modules.png - Part one of kernel module example output.

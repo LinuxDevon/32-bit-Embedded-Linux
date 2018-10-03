@@ -41,3 +41,11 @@ part1_kernel_modules.png
 Part2_kernel_modules.png
 part3_kernel_module.png 
 ```
+
+========================
+Professor Yoder's Comments
+
+Looks very good.  Nice and complete, again.  I like the use of the png file to document
+everything.
+
+Score:  10/10

@@ -1,8 +1,8 @@
 This homework gave examples of how to use your phone to control the bone using Blynk.
 
 # FILES
-Blynk_Button_LED.png - The output from the button and led widget.
-blynk_slider.png - the output from the slider portion.
+* Blynk_Button_LED.png - The output from the button and led widget.
+* blynk_slider.png - the output from the slider portion.
 
 # WIKI Page
 I have created a wiki page and added what we are doing. Andy and I plan on doing the LED matrix grad caps.

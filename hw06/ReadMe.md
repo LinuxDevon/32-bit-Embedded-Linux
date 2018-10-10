@@ -32,3 +32,8 @@
 
 11. Why can the External event in Figure 4 start sooner?
 	- They force irq threads to execute. They have small chunks of code wake up the higher prioity threads to make them execute over lower prioity threads.
+
+========================
+Professor Yoder's Comments
+
+Score:  10/10

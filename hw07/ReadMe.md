@@ -15,3 +15,7 @@ I have done this and the output is seen in the Blynk_Button_LED.png
 # Slider
 I have done this and the output is seen in the blynk_slider.png
 
+========================
+Professor Yoder's Comments
+
+Score:  10/10

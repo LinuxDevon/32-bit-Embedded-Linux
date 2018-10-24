@@ -18,3 +18,10 @@ Results shown in table. The waveform also looked good and the speed was multiple
 
 # 5.9 Reading an Input
 Results shown in table. The overall delay was about 59 ns. 
+
+========================
+Professor Yoder's Comments
+
+Nice use of the spreadsheet.  Why is the last plot mirrored?
+
+Score:  10/10
